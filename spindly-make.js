@@ -28,7 +28,7 @@ exports.SpindlyMake = async (verbose = false) => {
     // Make the Go store file
     let go = `package ${GoStorePackageName}
 
-import "github.com/HasinduLanka/Spindly/Spindly"
+import "github.com/spindlygo/spindly/Spindly"
 
 var HubManager *Spindly.HubManager = Spindly.NewHubManager()
 `

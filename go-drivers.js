@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/HasinduLanka/Spindly/SpindlyServer"
+    "github.com/spindlygo/spindly/Spindly"
 	"github.com/gorilla/mux"
 )
 
@@ -17,14 +17,14 @@ var router *mux.Router
 
 func Configure() {
 	InitializeHubs()
-	router = SpindlyServer.NewRouter()
-	SpindlyServer.HandleHub(router, HubManager)
-	SpindlyServer.HandleStatic(router, "public", "index.html")
+	router = Spindly.NewRouter()
+	Spindly.HandleHub(router, HubManager)
+	Spindly.HandleStatic(router, "public", "index.html")
 }
 
 func Serve() {
 	go Open("http://localhost:32510")
-	SpindlyServer.Serve(router, "32510")
+	Spindly.Serve(router, "32510")
 }
 
 // Open tries to open url in a browser and reports whether it succeeded.
@@ -136,7 +136,7 @@ exports.Driver_In_Browser = `
 package spindlyapp
 
 import (
-	"github.com/HasinduLanka/Spindly/SpindlyServer"
+    "github.com/spindlygo/spindly/Spindly"
 	"github.com/gorilla/mux"
 )
 
@@ -144,13 +144,13 @@ var router *mux.Router
 
 func Configure() {
 	InitializeHubs()
-	router = SpindlyServer.NewRouter()
-	SpindlyServer.HandleHub(router, HubManager)
-	SpindlyServer.HandleStatic(router, "public", "index.html")
+	router = Spindly.NewRouter()
+	Spindly.HandleHub(router, HubManager)
+	Spindly.HandleStatic(router, "public", "index.html")
 }
 
 func Serve() {
-	SpindlyServer.Serve(router, "32510")
+	Spindly.Serve(router, "32510")
 }
 
 `
@@ -161,7 +161,7 @@ package spindlyapp
 import (
 	"time"
 
-	"github.com/HasinduLanka/Spindly/SpindlyServer"
+    "github.com/spindlygo/spindly/Spindly"
 	"github.com/gorilla/mux"
 	"github.com/webview/webview"
 )
@@ -174,15 +174,15 @@ var wv webview.WebView
 
 func Configure() {
 	InitializeHubs()
-	router = SpindlyServer.NewRouter()
-	SpindlyServer.HandleHub(router, HubManager)
-	SpindlyServer.HandleStatic(router, "public", "index.html")
+	router = Spindly.NewRouter()
+	Spindly.HandleHub(router, HubManager)
+	Spindly.HandleStatic(router, "public", "index.html")
 
 }
 
 func Serve() {
 	go func() {
-		SpindlyServer.Serve(router, Port)
+		Spindly.Serve(router, Port)
 	}()
 
 	time.Sleep(time.Millisecond * 500)

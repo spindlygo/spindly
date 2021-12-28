@@ -1,3 +1,7 @@
-export { SpindlyDev } from './spindly-dev';
-export { SpindlyPublish } from './spindly-publish-plugin';
-export { GoRun } from "./spindly-go-run";
+let { SpindlyDev } = require('./spindly-dev');
+let { SpindlyPublish } = require('./spindly-publish-plugin');
+let { SpindlyGoRun } = require('./spindly-go-run');
+
+exports.SpindlyDev = SpindlyDev;
+exports.SpindlyPublish = SpindlyPublish;
+exports.SpindlyGoRun = SpindlyGoRun;

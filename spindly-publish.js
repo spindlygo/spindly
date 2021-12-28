@@ -1,9 +1,9 @@
-import { Driver_In_Browser, Driver_WebApp, Driver_Webview } from "./spindly-make.js";
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import child_process from 'child_process';
+let { Driver_In_Browser, Driver_WebApp, Driver_Webview } = require("./spindly-make");
 
+let { fs } = require("fs");
+let { os } = require("os");
+let { path } = require("path");
+let { child_process } = require("child_process");
 
 let Verbose = true;
 

@@ -1,4 +1,4 @@
-import { SpindlyMake } from "./spindly-make.js";
+let { SpindlyMake } = require("./spindly-make");
 
 
 let Verbose = true;

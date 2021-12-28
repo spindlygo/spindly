@@ -1,5 +1,5 @@
-import fg from "fast-glob";
-import { SpindlyMake } from "./spindly-make.js";
+let fg = require("fast-glob");
+let { SpindlyMake } = require("./spindly-make.js");
 
 let Verbose = true;
 

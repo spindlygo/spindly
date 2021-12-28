@@ -1,7 +1,6 @@
-
-import fg from 'fast-glob';
-import fs from 'fs';
-import child_process from 'child_process';
+let fg = require("fast-glob");
+let fs = require("fs");
+let child_process = require("child_process");
 
 
 let Verbose = false;

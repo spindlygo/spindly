@@ -63,7 +63,7 @@ var HubManager *Spindly.HubManager = Spindly.NewHubManager()
 
 
             // Make the svelte Hub file
-            let js = `import ConnectHub from '${rootDirPath}SpindlyHubs.js'
+            let js = `import { ConnectHub } from "spindly";
 
 const hub_name = '${hubclass}';
 

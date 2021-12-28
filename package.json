@@ -1,6 +1,6 @@
 {
   "name": "spindly",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Spindly Go - Svelte desktop app framework",
   "main": "index.js",
   "scripts": {
@@ -22,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/spindlygo/spindly/issues"
   },
-  "homepage": "https://github.com/spindlygo/spindly"
+  "homepage": "https://github.com/spindlygo/spindly",
+  "dependencies": {
+    "fast-glob": "^3.2.7",
+    "tree-kill": "^1.2.2"
+  }
 }

@@ -1,4 +1,4 @@
-let { Driver_In_Browser, Driver_WebApp, Driver_Webview } = require("./spindly-make");
+let { Driver_In_Browser, Driver_WebApp, Driver_Webview } = require("./go-drivers");
 
 let { fs } = require("fs");
 let { os } = require("os");

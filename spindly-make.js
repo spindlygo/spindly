@@ -6,7 +6,7 @@ let child_process = require("child_process");
 let Verbose = false;
 let GoStoreFileName;
 
-exports.SpindlyMake = (verbose = false) => {
+exports.SpindlyMake = async (verbose = false) => {
     Verbose = verbose;
 
     if (Verbose) console.log('Spindly Make Started');

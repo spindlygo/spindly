@@ -1,0 +1,26 @@
+{
+  "name": "spindly",
+  "version": "1.0.0",
+  "description": "Spindly Go - Svelte desktop app framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spindlygo/spindly.git"
+  },
+  "keywords": [
+    "svlete",
+    "golang",
+    "desktop",
+    "app",
+    "cross-platform"
+  ],
+  "author": "HasinduLanka",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/spindlygo/spindly/issues"
+  },
+  "homepage": "https://github.com/spindlygo/spindly"
+}

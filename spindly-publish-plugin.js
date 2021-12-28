@@ -3,7 +3,7 @@ let { SpindlyMake } = require("./spindly-make");
 
 let Verbose = true;
 
-export default function SpindlyPublish() {
+exports.SpindlyPublish = () => {
 
   return {
     name: "SpindlyPublish", // this name will show up in warnings and errors

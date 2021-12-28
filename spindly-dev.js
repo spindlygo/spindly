@@ -3,7 +3,7 @@ let { SpindlyMake } = require("./spindly-make.js");
 
 let Verbose = true;
 
-export default function SpindlyDev() {
+exports = function SpindlyDev() {
   return {
     name: "SpindlyDev", // this name will show up in warnings and errors
     async buildStart() {

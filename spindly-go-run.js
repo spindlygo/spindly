@@ -1,4 +1,4 @@
-export default function GoRun() {
+exports = function GoRun() {
     let gppid;
 
     function toExit() {

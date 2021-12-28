@@ -6,7 +6,7 @@ let child_process = require("child_process");
 let Verbose = false;
 let GoStoreFileName;
 
-export async function SpindlyMake(verbose = false) {
+exports.SpindlyMake = (verbose = false) => {
     Verbose = verbose;
 
     if (Verbose) console.log('Spindly Make Started');
@@ -305,7 +305,7 @@ async function RemoveFile(file) {
 }
 
 
-export const Driver_WebApp = `
+exports.Driver_WebApp = `
 package spindlyapp
 
 import (
@@ -438,7 +438,7 @@ func appearsSuccessful(cmd *exec.Cmd, timeout time.Duration) bool {
 `
 
 
-export const Driver_In_Browser = `
+exports.Driver_In_Browser = `
 package spindlyapp
 
 import (
@@ -461,7 +461,7 @@ func Serve() {
 
 `
 
-export const Driver_Webview = `
+exports.Driver_Webview = `
 package spindlyapp
 
 import (

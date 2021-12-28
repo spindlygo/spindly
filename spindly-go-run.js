@@ -1,4 +1,4 @@
-exports = function GoRun() {
+exports.SpindlyGoRun = () => {
     let gppid;
 
     function toExit() {

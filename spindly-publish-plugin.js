@@ -1,4 +1,5 @@
 let { SpindlyMake } = require("./spindly-make");
+let { BuildPackages } = require("./spindly-publish");
 
 
 let Verbose = true;
@@ -10,6 +11,8 @@ exports.SpindlyPublish = () => {
     async buildStart() {
       try {
         await SpindlyMake(Verbose);
+        await BuildPackages();
+
       } catch (error) {
         console.error(error);
       }

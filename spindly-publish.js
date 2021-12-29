@@ -8,9 +8,7 @@ let { child_process } = require("child_process");
 let Verbose = true;
 
 
-await buildPackages();
-
-async function buildPackages() {
+exports.BuildPackages = async function () {
 
     const publishDir = "published-app";
 

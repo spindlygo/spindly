@@ -8,7 +8,7 @@ exports.SpindlyGoRun = () => {
         }
     }
 
-    const GORUN = (process.env.GORUN && process.env.GORUN === '1') || false;
+    const GORUN = !(process.env.GORUN && process.env.GORUN.toUpperCase() === 'FALSE');
     if (GORUN) {
         return {
             writeBundle() {

@@ -1,5 +1,6 @@
+let gppid;
+
 exports.SpindlyGoRun = () => {
-    let gppid;
 
     function toExit() {
         if (gppid) {

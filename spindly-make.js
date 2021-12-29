@@ -43,7 +43,7 @@ var HubManager *Spindly.HubManager = Spindly.NewHubManager()
 
             let jshub = `src/${hub.filepath}.spindlyhubs.js`;
 
-            if (Verbose) console.log("\tJS Hub : ", jshub);
+            if (Verbose) console.log("\tHub : ", jshub);
 
             CreateDir(jshub);
 
@@ -82,7 +82,6 @@ type ${hubclass} struct {
 
 
             for (const [name, V] of Object.entries(hub.stores)) {
-                if (Verbose) console.log("\t\SpindlyStore : ", name);
 
                 if (V.type === "event") {
                     js += `        ${name}: SpindlyEventStore("${name}"),\n`;

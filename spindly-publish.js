@@ -1,14 +1,15 @@
 let { Driver_In_Browser, Driver_WebApp, Driver_Webview } = require("./go-drivers");
 
-let { fs } = require("fs");
-let { os } = require("os");
-let { path } = require("path");
-let { child_process } = require("child_process");
+let fs = require("fs");
+let os = require("os");
+let path = require("path");
+let child_process = require("child_process");
 
 let Verbose = true;
 
+BuildPackages();
 
-exports.BuildPackages = async function () {
+async function BuildPackages() {
 
     const publishDir = "published-app";
 

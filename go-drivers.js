@@ -1,16 +1,14 @@
 
-exports.Driver_WebApp = `
-package spindlyapp
+exports.Driver_WebApp = `package spindlyapp
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
 	"time"
 
-    "github.com/spindlygo/spindly/Spindly"
 	"github.com/gorilla/mux"
+	"github.com/spindlygo/spindly/Spindly"
 )
 
 var router *mux.Router
@@ -29,21 +27,22 @@ func Serve() {
 
 // Open tries to open url in a browser and reports whether it succeeded.
 func Open(url string) bool {
-	for _, args := range Commands(url) {
 
-		fmt.Println("Opening", url, "with", args)
-		cmd := exec.Command(args[0], args[1:]...)
-
-		if cmd.Start() == nil && appearsSuccessful(cmd, 3*time.Second) {
-			return true
-		}
+	chromeArgs := []string{
+		"--disable-client-side-phishing-detection ",
+		"--disable-default-apps ",
+		"--disable-infobars ",
+		"--disable-extensions ",
+		"--disable-ipc-flooding-protection ",
+		"--disable-popup-blocking ",
+		"--disable-prompt-on-repost ",
+		"--disable-sync ",
+		"--disable-translate ",
+		"--disable-windows10-custom-titlebar ",
+		"--no-first-run ",
+		"--no-default-browser-check ",
+		"--safebrowsing-disable-auto-update ",
 	}
-	return false
-}
-
-func Commands(url string) [][]string {
-
-	var cmds [][]string
 
 	switch runtime.GOOS {
 	case "darwin": // Mac OS
@@ -53,63 +52,114 @@ func Commands(url string) [][]string {
 			"/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
 			"/Applications/Chromium.app/Contents/MacOS/Chromium",
 			"/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-			"/usr/bin/google-chrome-stable",
 			"/usr/bin/google-chrome",
 			"/usr/bin/chromium",
-			"/usr/bin/chromium-browser",
 		}
 
 		for _, channel := range []string{"", "-stable", "-browser", "-beta", "-canary", "-dev", "-nightly"} {
 			for _, chromiumBrowser := range chromeLocations {
-				if ProgramExists(chromiumBrowser + channel) {
-					cmds = append(cmds, []string{chromiumBrowser + channel, "--app=" + url})
+				if programExists(chromiumBrowser + channel) {
+					if tryOpenCmd(chromiumBrowser+channel, "--app="+url, chromeArgs) {
+						return true
+					}
 				}
 			}
 		}
 
-		for _, chromeBin := range []string{"Google Chrome", "Microsoft Edge"} {
-			cmds = append(cmds, []string{"open -a \\\"" + chromeBin + "\\\"", "--app=" + url})
+		for _, chromeBin := range []string{string('"') + "Google Chrome" + string('"'), string('"') + "Microsoft Edge" + string('"')} {
+			if tryOpenCmd("open -a "+chromeBin, "--app="+url, chromeArgs) {
+				return true
+			}
 		}
 
-		cmds = append(cmds, []string{"/usr/bin/open", url})
+		if tryOpenCmd("/usr/bin/open", url, nil) {
+			return true
+		}
 
 	case "windows":
 
+		envLocalAppData := os.Getenv("LocalAppData")
+		envProgramFiles := os.Getenv("ProgramFiles")
+		envProgramFilesx86 := os.Getenv("ProgramFiles(x86)")
+
+		chromeLocations := []string{
+			envProgramFiles + "/Microsoft/Edge/Application/msedge.exe",
+			envProgramFilesx86 + "/Microsoft/Edge/Application/msedge.exe",
+			envProgramFiles + "/Google/Chrome/Application/chrome.exe",
+			envProgramFilesx86 + "/Google/Chrome/Application/chrome.exe",
+			envProgramFiles + "/Chromium/Application/chrome.exe",
+			envProgramFilesx86 + "/Chromium/Application/chrome.exe",
+			envLocalAppData + "/Google/Chrome/Application/chrome.exe",
+			envLocalAppData + "/Chromium/Application/chrome.exe",
+		}
+
+		for _, chromiumBrowser := range chromeLocations {
+			if programExists(chromiumBrowser) {
+				if tryOpenCmd(chromiumBrowser, "--app="+url, chromeArgs) {
+					return true
+				}
+			}
+		}
+
 		// Lets hope that the user didn't find a way to uninstall Edge.
-		cmds = append(cmds, []string{"cmd", "/c", "start", "msedge", "--app=" + url})
-		cmds = append(cmds, []string{"cmd", "/c", "start", url})
+		if tryOpenCmd("cmd", "/c", []string{"start", "msedge", "--app=" + url}) {
+			return true
+		}
+
+		if tryOpenCmd("cmd", "/c", []string{"start", url}) {
+			return true
+		}
 
 	default:
 		// case "linux":
 		for _, channel := range []string{"", "-stable", "-browser", "-beta", "-canary", "-dev", "-nightly"} {
 			for _, chromiumBrowser := range []string{"google-chrome", "chromium", "chrome", "msedge", "vivaldi", "opera", "brave", "/snap/bin/chromium"} {
-				if ProgramExists(chromiumBrowser + channel) {
-					cmds = append(cmds, []string{chromiumBrowser + channel, "--app=" + url})
+				if programExists(chromiumBrowser + channel) {
+					if tryOpenCmd(chromiumBrowser+channel, "--app="+url, chromeArgs) {
+						return true
+					}
 				}
 			}
 
 		}
 
-		if ProgramExists("firefox") {
-			cmds = append(cmds, []string{"firefox", "-ssb " + url})
+		if programExists("firefox") {
+			if tryOpenCmd("firefox", "-ssb "+url, nil) {
+				return true
+			}
 		}
-		if ProgramExists("firefox-stable") {
-			cmds = append(cmds, []string{"firefox-stable", "-ssb " + url})
+
+		if programExists("firefox-stable") {
+			if tryOpenCmd("firefox-stable", "-ssb "+url, nil) {
+				return true
+			}
 		}
 
 		if os.Getenv("DISPLAY") != "" {
 			// xdg-open is only for use in a desktop environment.
-			cmds = append(cmds, []string{"xdg-open", url})
+			if tryOpenCmd("xdg-open", url, nil) {
+				return true
+			}
 		}
 
 	}
-	return cmds
-
+	return false
 }
 
-func ProgramExists(program string) bool {
+func programExists(program string) bool {
 	_, err := exec.LookPath(program)
 	return err == nil
+}
+
+func tryOpenCmd(prg string, arg0 string, args []string) bool {
+	cmd := exec.Command(prg, append([]string{arg0}, args...)...)
+
+	if cmd.Start() == nil && appearsSuccessful(cmd, 3*time.Second) {
+		println("Opening window with '" + prg + "'")
+		return true
+	}
+
+	return false
 }
 
 // appearsSuccessful reports whether the command appears to have run successfully.
@@ -128,12 +178,10 @@ func appearsSuccessful(cmd *exec.Cmd, timeout time.Duration) bool {
 		return err == nil
 	}
 }
-
 `
 
 
-exports.Driver_In_Browser = `
-package spindlyapp
+exports.Driver_In_Browser = `package spindlyapp
 
 import (
     "github.com/spindlygo/spindly/Spindly"
@@ -152,11 +200,9 @@ func Configure() {
 func Serve() {
 	Spindly.Serve(router, "32510")
 }
-
 `
 
-exports.Driver_Webview = `
-package spindlyapp
+exports.Driver_Webview = `package spindlyapp
 
 import (
 	"time"
@@ -194,5 +240,4 @@ func Serve() {
 	wv.Navigate("http://localhost:" + Port)
 	wv.Run()
 }
-
 `

@@ -242,19 +242,26 @@ func InitializeHubs() {
 
     await Promise.all(MakePromises);
 
-    Exec(`go fmt ${GoStoreFileName} `);
+    await Exec(`go fmt ${GoStoreFileName} `);
+    await Exec(`go mod tidy`);
+
 
 }
 
 function Exec(file) {
     var exec = child_process.exec;
-    exec(file, function callback(error, stdout, stderr) {
-        if (stdout) console.log(file + ': ' + stdout);
-        if (stderr) console.log(file + ': Erro : ' + stderr);
-        if (error) console.error(error);
-    });
-}
 
+    return new Promise((resolve, reject) => {
+        exec(file, function execcallback(error, stdout, stderr) {
+            if (stdout) console.log(file + ': ' + stdout);
+            if (stderr) console.log(file + ': Erro : ' + stderr);
+            if (error) console.error(error);
+
+            resolve();
+        });
+    });
+
+}
 
 
 function CreateDir(filename) {

@@ -184,8 +184,8 @@ func appearsSuccessful(cmd *exec.Cmd, timeout time.Duration) bool {
 exports.Driver_In_Browser = `package spindlyapp
 
 import (
-    "github.com/spindlygo/spindly/Spindly"
 	"github.com/gorilla/mux"
+	"github.com/spindlygo/spindly/Spindly"
 )
 
 var router *mux.Router
@@ -207,8 +207,8 @@ exports.Driver_Webview = `package spindlyapp
 import (
 	"time"
 
-    "github.com/spindlygo/spindly/Spindly"
 	"github.com/gorilla/mux"
+	"github.com/spindlygo/spindly/Spindly"
 	"github.com/webview/webview"
 )
 

@@ -3,8 +3,10 @@ package Spindly
 import (
 	"context"
 	"encoding/json"
+	"net"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -37,32 +39,52 @@ func HandleHub(router *mux.Router, manager *HubManager) {
 }
 
 // Starts serving router on the given port.
-// This function blocks until the server stops.
-func Serve(router *mux.Router, port string) {
+func Serve(router *mux.Router, port string) string {
+
+	if len(port) == 0 {
+		port = "0"
+	}
+
+	listener, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		panic(err)
+	}
+
+	port = strconv.Itoa(listener.Addr().(*net.TCPAddr).Port)
 
 	srv := &http.Server{
 		Handler: router,
 		Addr:    "localhost:" + port,
 	}
 
-	log("Host on http://localhost:" + port)
-
 	go func() {
-		final := srv.ListenAndServe()
+		final := srv.Serve(listener)
 
 		if final != nil && len(server_shutdown_channel) == 0 {
 			panic(final)
 		}
 	}()
 
+	hostURL := "http://localhost:" + port
+
+	log("Host on " + hostURL)
+
+	go func() {
+		<-server_shutdown_channel
+
+		log("Shutting down host...")
+
+		go logerr(srv.Shutdown(context.Background()))
+		time.Sleep(time.Second * 4)
+		go logerr(srv.Close())
+	}()
+
+	return hostURL
+
+}
+
+func BlockWhileHostRunning() {
 	<-server_shutdown_channel
-
-	log("Shutting down server...")
-
-	go logerr(srv.Shutdown(context.Background()))
-	time.Sleep(time.Second * 4)
-	go logerr(srv.Close())
-
 }
 
 var server_shutdown_channel = make(chan bool, 132)

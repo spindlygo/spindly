@@ -17,8 +17,9 @@ func Configure() {
 }
 
 func Serve() {
-	go Spindly.TryAndOpenChromiumWindow("http://localhost:"+DefaultPort, true)
-	Spindly.Serve(router, DefaultPort)
+	url := Spindly.Serve(router, DefaultPort)
+	Spindly.TryAndOpenChromiumWindow(url, true)
+	Spindly.BlockWhileHostRunning()
 }
 `
 
@@ -42,6 +43,7 @@ func Configure() {
 
 func Serve() {
 	Spindly.Serve(router, DefaultPort)
+	Spindly.BlockWhileHostRunning()
 }
 `
 
@@ -56,6 +58,7 @@ import (
 )
 
 var DefaultPort string = "32510"
+
 const debug = true
 
 var router *mux.Router
@@ -71,18 +74,14 @@ func Configure() {
 
 func Serve() {
 
-	url := "http://localhost:" + DefaultPort
+	url := Spindly.Serve(router, DefaultPort)
 
 	if Spindly.TryAndOpenChromiumWindow(url, false) {
-		Spindly.Serve(router, DefaultPort)
+		Spindly.BlockWhileHostRunning()
 		return
 	}
 
 	println("Cannot find a chromium based browser, opening with webview instead")
-
-	go func() {
-		Spindly.Serve(router, DefaultPort)
-	}()
 
 	time.Sleep(time.Millisecond * 500)
 

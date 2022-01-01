@@ -1,5 +1,5 @@
 
-exports.Driver_WebApp = `package spindlyapp
+exports.Driver_ChromeApp = `package spindlyapp
 
 import (
 	"github.com/gorilla/mux"
@@ -45,7 +45,7 @@ func Serve() {
 }
 `
 
-exports.Driver_Webview = `package spindlyapp
+exports.Driver_Adaptive = `package spindlyapp
 
 import (
 	"time"

@@ -2,7 +2,7 @@ let fg = require("fast-glob");
 let fs = require("fs");
 let child_process = require("child_process");
 
-let { Driver_In_Browser, Driver_WebApp, Driver_Webview } = require("./go-drivers");
+let { Driver_In_Browser, Driver_ChromeApp, Driver_Adaptive } = require("./go-drivers");
 
 
 let Verbose = false;
@@ -233,10 +233,10 @@ func InitializeHubs() {
         let devdriver = SpindlyConfigs.devdriver;
         if (devdriver == "browser") {
             fs.writeFileSync("spindlyapp/driver.go", Driver_In_Browser);
-        } else if (devdriver == "webview") {
-            fs.writeFileSync("spindlyapp/driver.go", Driver_Webview);
-        } else if (devdriver == "webapp") {
-            fs.writeFileSync("spindlyapp/driver.go", Driver_WebApp);
+        } else if (devdriver == "adaptive") {
+            fs.writeFileSync("spindlyapp/driver.go", Driver_Adaptive);
+        } else if (devdriver == "chromeapp") {
+            fs.writeFileSync("spindlyapp/driver.go", Driver_ChromeApp);
         }
     }
 

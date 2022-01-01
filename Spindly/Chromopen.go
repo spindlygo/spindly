@@ -10,6 +10,11 @@ import (
 // Open tries to open url in a browser and reports whether it succeeded.
 func TryAndOpenChromiumWindow(url string, fallBackToDefaultBrowser bool) bool {
 
+	_, noChrome := os.LookupEnv("NOCHROME")
+	if noChrome {
+		return false
+	}
+
 	chromeArgs := []string{
 		"--disable-client-side-phishing-detection ",
 		"--disable-default-apps ",

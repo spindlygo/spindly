@@ -1,4 +1,4 @@
-let { Driver_In_Browser, Driver_WebApp, Driver_Webview } = require("./go-drivers");
+let { Driver_In_Browser, Driver_ChromeApp, Driver_Adaptive } = require("./go-drivers");
 
 let fs = require("fs");
 let os = require("os");
@@ -67,14 +67,14 @@ async function BuildPackages() {
         alldrivers = ["browser"];
     }
 
-    if (process.env.SPINDLYBUILD === "WEBVIEW") {
-        alldrivers = ["webview"];
+    if (process.env.SPINDLYBUILD === "ADAPTIVE") {
+        alldrivers = ["adaptive"];
     }
 
 
-    if (alldrivers.indexOf("webapp") > -1) {
+    if (alldrivers.indexOf("chromeapp") > -1) {
 
-        fs.writeFileSync("spindlyapp/driver.go", Driver_WebApp);
+        fs.writeFileSync("spindlyapp/driver.go", Driver_ChromeApp);
         await Exec(`go mod tidy`);
 
         if (SpindlyConfigs.hasOwnProperty("os") && SpindlyConfigs.os) {
@@ -83,29 +83,29 @@ async function BuildPackages() {
 
             if (targetos.indexOf("windows") > -1) {
                 if (archs.indexOf("amd64") > -1) {
-                    await PublishApp("windows", ".exe", "amd64", "webapp", (SpindlyConfigs.windowscli ? "" : `-ldflags="-H windowsgui"`));
+                    await PublishApp("windows", ".exe", "amd64", "chromeapp", (SpindlyConfigs.windowscli ? "" : `-ldflags="-H windowsgui"`));
                 }
                 if (archs.indexOf("386") > -1) {
-                    await PublishApp("windows", ".exe", "386", "webapp", (SpindlyConfigs.windowscli ? "" : `-ldflags="-H windowsgui"`));
+                    await PublishApp("windows", ".exe", "386", "chromeapp", (SpindlyConfigs.windowscli ? "" : `-ldflags="-H windowsgui"`));
                 }
 
             }
 
             if (targetos.indexOf("darwin") > -1) {
                 if (archs.indexOf("amd64") > -1) {
-                    await PublishApp("darwin", "", "amd64", "webapp");
+                    await PublishApp("darwin", "", "amd64", "chromeapp");
                 }
             }
 
             if (targetos.indexOf("linux") > -1) {
                 if (archs.indexOf("amd64") > -1) {
-                    await PublishApp("linux", "", "amd64", "webapp");
+                    await PublishApp("linux", "", "amd64", "chromeapp");
                 }
                 if (archs.indexOf("386") > -1) {
-                    await PublishApp("linux", "", "386", "webapp");
+                    await PublishApp("linux", "", "386", "chromeapp");
                 }
                 if (archs.indexOf("arm") > -1) {
-                    await PublishApp("linux", "", "arm", "webapp");
+                    await PublishApp("linux", "", "arm", "chromeapp");
                 }
             }
         }
@@ -151,9 +151,9 @@ async function BuildPackages() {
     }
 
 
-    if (alldrivers.indexOf("webview") > -1) {
+    if (alldrivers.indexOf("adaptive") > -1) {
 
-        fs.writeFileSync("spindlyapp/driver.go", Driver_Webview);
+        fs.writeFileSync("spindlyapp/driver.go", Driver_Adaptive);
 
 
         await Exec(`go mod tidy`);
@@ -167,38 +167,38 @@ async function BuildPackages() {
 
             if ((ostype === "Windows_NT") && targetos.indexOf("windows") > -1) {
                 if ((osarch === "x64") && archs.indexOf("amd64") > -1) {
-                    await PublishApp("windows", ".exe", "amd64", "webview", (SpindlyConfigs.windowscli ? "" : `-ldflags="-H windowsgui"`));
+                    await PublishApp("windows", ".exe", "amd64", "adaptive", (SpindlyConfigs.windowscli ? "" : `-ldflags="-H windowsgui"`));
                 }
                 if ((osarch === "x32") && archs.indexOf("386") > -1) {
-                    await PublishApp("windows", ".exe", "386", "webview", (SpindlyConfigs.windowscli ? "" : `-ldflags="-H windowsgui"`));
+                    await PublishApp("windows", ".exe", "386", "adaptive", (SpindlyConfigs.windowscli ? "" : `-ldflags="-H windowsgui"`));
                 }
 
             }
 
             if ((ostype === "Darwin") && targetos.indexOf("darwin") > -1) {
                 if ((osarch === "x64") && archs.indexOf("amd64") > -1) {
-                    await PublishApp("darwin", "", "amd64", "webview");
+                    await PublishApp("darwin", "", "amd64", "adaptive");
                 }
             }
 
             if ((ostype === "Linux") && targetos.indexOf("linux") > -1) {
                 if ((osarch === "x64") && archs.indexOf("amd64") > -1) {
-                    await PublishApp("linux", "", "amd64", "webview");
+                    await PublishApp("linux", "", "amd64", "adaptive");
                 }
                 if ((osarch === "x32") && archs.indexOf("386") > -1) {
-                    await PublishApp("linux", "", "386", "webview");
+                    await PublishApp("linux", "", "386", "adaptive");
                 }
                 if ((osarch === "arm") && archs.indexOf("arm") > -1) {
-                    await PublishApp("linux", "", "arm", "webview");
+                    await PublishApp("linux", "", "arm", "adaptive");
                 }
             }
         }
     }
 
 
-    if (alldrivers.indexOf("webview-cross") > -1) {
+    if (alldrivers.indexOf("adaptive-cross") > -1) {
 
-        fs.writeFileSync("spindlyapp/driver.go", Driver_Webview);
+        fs.writeFileSync("spindlyapp/driver.go", Driver_Adaptive);
 
 
         await Exec(`go mod tidy`);
@@ -210,29 +210,29 @@ async function BuildPackages() {
 
             if (targetos.indexOf("windows") > -1) {
                 if (archs.indexOf("amd64") > -1) {
-                    await PublishApp("windows", ".exe", "amd64", "webview-cross", `-ldflags="-H windowsgui"`, mingenv);
+                    await PublishApp("windows", ".exe", "amd64", "adaptive-cross", `-ldflags="-H windowsgui"`, mingenv);
                 }
                 if (archs.indexOf("386") > -1) {
-                    await PublishApp("windows", ".exe", "386", "webview-cross", `-ldflags="-H windowsgui"`, mingenv);
+                    await PublishApp("windows", ".exe", "386", "adaptive-cross", `-ldflags="-H windowsgui"`, mingenv);
                 }
 
             }
 
             if (targetos.indexOf("darwin") > -1) {
                 if (archs.indexOf("amd64") > -1) {
-                    await PublishApp("darwin", "", "amd64", "webview-cross", "", mingenv);
+                    await PublishApp("darwin", "", "amd64", "adaptive-cross", "", mingenv);
                 }
             }
 
             if (targetos.indexOf("linux") > -1) {
                 if (archs.indexOf("amd64") > -1) {
-                    await PublishApp("linux", "", "amd64", "webview-cross", "", mingenv);
+                    await PublishApp("linux", "", "amd64", "adaptive-cross", "", mingenv);
                 }
                 if (archs.indexOf("386") > -1) {
-                    await PublishApp("linux", "", "386", "webview-cross", "", mingenv);
+                    await PublishApp("linux", "", "386", "adaptive-cross", "", mingenv);
                 }
                 if (archs.indexOf("arm") > -1) {
-                    await PublishApp("linux", "", "arm", "webview-cross", "", mingenv);
+                    await PublishApp("linux", "", "arm", "adaptive-cross", "", mingenv);
                 }
             }
         }

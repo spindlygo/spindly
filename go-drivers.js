@@ -12,6 +12,7 @@ import (
 )
 
 var router *mux.Router
+var DefaultPort string = "32510"
 
 func Configure() {
 	InitializeHubs()
@@ -21,8 +22,8 @@ func Configure() {
 }
 
 func Serve() {
-	go Open("http://localhost:32510")
-	Spindly.Serve(router, "32510")
+	go Open("http://localhost:" + DefaultPort)
+	Spindly.Serve(router, DefaultPort)
 }
 
 // Open tries to open url in a browser and reports whether it succeeded.
@@ -189,6 +190,7 @@ import (
 )
 
 var router *mux.Router
+var DefaultPort string = "32510"
 
 func Configure() {
 	InitializeHubs()
@@ -198,7 +200,7 @@ func Configure() {
 }
 
 func Serve() {
-	Spindly.Serve(router, "32510")
+	Spindly.Serve(router, DefaultPort)
 }
 `
 
@@ -212,7 +214,7 @@ import (
 	"github.com/webview/webview"
 )
 
-const Port = "32510"
+var DefaultPort string = "32510"
 const debug = true
 
 var router *mux.Router
@@ -228,7 +230,7 @@ func Configure() {
 
 func Serve() {
 	go func() {
-		Spindly.Serve(router, Port)
+		Spindly.Serve(router, DefaultPort)
 	}()
 
 	time.Sleep(time.Millisecond * 500)
@@ -237,7 +239,7 @@ func Serve() {
 	defer wv.Destroy()
 	wv.SetTitle("Spindly")
 	wv.SetSize(1024, 640, webview.HintMin)
-	wv.Navigate("http://localhost:" + Port)
+	wv.Navigate("http://localhost:" + DefaultPort)
 	wv.Run()
 }
 `

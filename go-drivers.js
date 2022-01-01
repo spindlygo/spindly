@@ -70,6 +70,16 @@ func Configure() {
 }
 
 func Serve() {
+
+	url := "http://localhost:" + DefaultPort
+
+	if Spindly.TryAndOpenChromiumWindow(url, false) {
+		Spindly.Serve(router, DefaultPort)
+		return
+	}
+
+	println("Cannot find a chromium based browser, opening with webview instead")
+
 	go func() {
 		Spindly.Serve(router, DefaultPort)
 	}()
@@ -80,7 +90,7 @@ func Serve() {
 	defer wv.Destroy()
 	wv.SetTitle("Spindly")
 	wv.SetSize(1024, 640, webview.HintMin)
-	wv.Navigate("http://localhost:" + DefaultPort)
+	wv.Navigate(url)
 	wv.Run()
 }
 `

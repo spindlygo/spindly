@@ -1,6 +1,6 @@
 {
   "name": "spindly",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "Spindly Go - Svelte desktop app framework",
   "main": "index.js",
   "scripts": {

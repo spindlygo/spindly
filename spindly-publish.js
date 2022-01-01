@@ -75,8 +75,6 @@ async function BuildPackages() {
     if (alldrivers.indexOf("webapp") > -1) {
 
         fs.writeFileSync("spindlyapp/driver.go", Driver_WebApp);
-
-
         await Exec(`go mod tidy`);
 
         if (SpindlyConfigs.hasOwnProperty("os") && SpindlyConfigs.os) {
@@ -108,6 +106,45 @@ async function BuildPackages() {
                 }
                 if (archs.indexOf("arm") > -1) {
                     await PublishApp("linux", "", "arm", "webapp");
+                }
+            }
+        }
+    }
+
+    if (alldrivers.indexOf("browser") > -1) {
+
+        fs.writeFileSync("spindlyapp/driver.go", Driver_In_Browser);
+        await Exec(`go mod tidy`);
+
+        if (SpindlyConfigs.hasOwnProperty("os") && SpindlyConfigs.os) {
+
+            let targetos = SpindlyConfigs.os;
+
+            if (targetos.indexOf("windows") > -1) {
+                if (archs.indexOf("amd64") > -1) {
+                    await PublishApp("windows", ".exe", "amd64", "browser", (SpindlyConfigs.windowscli ? "" : `-ldflags="-H windowsgui"`));
+                }
+                if (archs.indexOf("386") > -1) {
+                    await PublishApp("windows", ".exe", "386", "browser", (SpindlyConfigs.windowscli ? "" : `-ldflags="-H windowsgui"`));
+                }
+
+            }
+
+            if (targetos.indexOf("darwin") > -1) {
+                if (archs.indexOf("amd64") > -1) {
+                    await PublishApp("darwin", "", "amd64", "browser");
+                }
+            }
+
+            if (targetos.indexOf("linux") > -1) {
+                if (archs.indexOf("amd64") > -1) {
+                    await PublishApp("linux", "", "amd64", "browser");
+                }
+                if (archs.indexOf("386") > -1) {
+                    await PublishApp("linux", "", "386", "browser");
+                }
+                if (archs.indexOf("arm") > -1) {
+                    await PublishApp("linux", "", "arm", "browser");
                 }
             }
         }

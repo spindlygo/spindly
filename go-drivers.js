@@ -7,7 +7,8 @@ import (
 )
 
 var router *mux.Router
-var DefaultPort string = "32510"
+var DefaultPort string = "0"
+var HostURL string
 
 func Configure() {
 	InitializeHubs()
@@ -17,8 +18,8 @@ func Configure() {
 }
 
 func Serve() {
-	url := Spindly.Serve(router, DefaultPort)
-	Spindly.TryAndOpenChromiumWindow(url, true)
+	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort)
+	Spindly.TryAndOpenChromiumWindow(HostURL, true)
 	Spindly.BlockWhileHostRunning()
 }
 `
@@ -32,7 +33,8 @@ import (
 )
 
 var router *mux.Router
-var DefaultPort string = "32510"
+var DefaultPort string = "0"
+var HostURL string
 
 func Configure() {
 	InitializeHubs()
@@ -42,7 +44,7 @@ func Configure() {
 }
 
 func Serve() {
-	Spindly.Serve(router, DefaultPort)
+	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort)
 	Spindly.BlockWhileHostRunning()
 }
 `
@@ -57,7 +59,8 @@ import (
 	"github.com/webview/webview"
 )
 
-var DefaultPort string = "32510"
+var DefaultPort string = "0"
+var HostURL string
 
 const debug = true
 
@@ -74,9 +77,9 @@ func Configure() {
 
 func Serve() {
 
-	url := Spindly.Serve(router, DefaultPort)
+	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort)
 
-	if Spindly.TryAndOpenChromiumWindow(url, false) {
+	if Spindly.TryAndOpenChromiumWindow(HostURL, false) {
 		Spindly.BlockWhileHostRunning()
 		return
 	}
@@ -89,7 +92,7 @@ func Serve() {
 	defer wv.Destroy()
 	wv.SetTitle("Spindly")
 	wv.SetSize(1024, 640, webview.HintMin)
-	wv.Navigate(url)
+	wv.Navigate(HostURL)
 	wv.Run()
 }
 `

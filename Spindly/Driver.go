@@ -39,7 +39,7 @@ func HandleHub(router *mux.Router, manager *HubManager) {
 }
 
 // Starts serving router on the given port.
-func Serve(router *mux.Router, port string) string {
+func Serve(router *mux.Router, port string) (url string, AssignedPort string) {
 
 	if len(port) == 0 {
 		port = "0"
@@ -79,7 +79,7 @@ func Serve(router *mux.Router, port string) string {
 		go logerr(srv.Close())
 	}()
 
-	return hostURL
+	return hostURL, port
 
 }
 

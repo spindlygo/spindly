@@ -1,5 +1,11 @@
 package Spindly
 
+import (
+	"encoding/json"
+
+	"github.com/spindlygo/SpindlyExports"
+)
+
 var genNextID chan int = make(chan int)
 
 func init() {
@@ -106,4 +112,40 @@ func (v *SpindlyStore) Next() interface{} {
 	unlisten()
 
 	return value
+}
+
+func (v *SpindlyStore) ToExported() *SpindlyExports.ExportedStore {
+
+	returnAsJson := func(val interface{}) string {
+		Json, JErr := json.Marshal(val)
+
+		var ret string
+
+		if JErr != nil {
+			ret = ""
+		} else {
+			ret = string(Json)
+		}
+
+		return ret
+	}
+
+	ex := SpindlyExports.ExportedStore{
+		Name: v.Name,
+		Get: func() string {
+			val := v.Get()
+			return returnAsJson(val)
+		},
+		Set: func(val string) {
+			var value = v.Template()
+			json.Unmarshal([]byte(val), &value)
+			v.Set(value)
+		},
+		Next: func() string {
+			val := v.Next()
+			return returnAsJson(val)
+		},
+	}
+
+	return &ex
 }

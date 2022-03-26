@@ -28,7 +28,12 @@ exports.SpindlyMake = async (verbose = false) => {
     // Make the Go store file
     let go = `package ${GoStorePackageName}
 
-import "github.com/spindlygo/spindly/Spindly"
+import (
+    "time"
+
+    "github.com/spindlygo/SpindlyExports"
+    "github.com/spindlygo/spindly/Spindly"
+)
 
 var HubManager *Spindly.HubManager = Spindly.NewHubManager()
 `
@@ -80,6 +85,14 @@ type ${hubclass} struct {
     Instance *Spindly.HubInstance
 `
 
+            goExportedStruct = `
+type ${hubclass}Exported struct {
+`
+            goExporterFunc = `
+func (hub *${hubclass}) ToExported() *${hubclass}Exported {
+    return &${hubclass}Exported{
+`
+
 
             for (const [name, V] of Object.entries(hub.stores)) {
 
@@ -91,6 +104,8 @@ type ${hubclass} struct {
                 }
 
                 go += `\t${name} Spindly.SpindlyStore\n`;
+                goExportedStruct += `\t${name} *SpindlyExports.ExportedStore\n`;
+                goExporterFunc += `\t\t${name}:\thub.${name}.ToExported(),\n`;
 
             }
 
@@ -103,6 +118,12 @@ type ${hubclass} struct {
 var ${hubclass}_OnInstanciate func(*${hubclass})
 
 `
+
+            goExportedStruct += `}\n`;
+            goExporterFunc += `\t}\n}\n`;
+
+            go += goExportedStruct;
+            go += goExporterFunc;
 
             if ((hub.hasOwnProperty("instances")) && (hub.instances.length > 0)) {
                 for (const instname of hub.instances) {
@@ -214,6 +235,7 @@ func (hub *${hubclass}) Get${name}() ${V.type} {
 func InitializeHubs() {
 `
 
+    let instancedHubs = [];
 
     for (const [hubclass, hub] of hublist) {
         go += `    HubManager.RegisterClass("${hubclass}", func() Spindly.HubClass { return &${hubclass}{} })
@@ -221,10 +243,38 @@ func InitializeHubs() {
         if ((hub.hasOwnProperty("instances")) && (hub.instances.length > 0)) {
             for (const instname of hub.instances) {
                 go += `${instname} = ${hubclass}{}.New("${instname}")\n`
+                instancedHubs.push({ name: instname, hubclass: hubclass });
             }
         }
     }
-    go += `}`
+
+    go += `\tnamedExports = &NamedExportedHubs{\n`
+
+    for (const inst of instancedHubs) {
+        go += `\t\t${inst.name}: ${inst.name}.ToExported(),\n`
+    }
+
+    go += `\t}\n}
+type NamedExportedHubs struct {
+`
+
+    for (const inst of instancedHubs) {
+        go += `\t${inst.name} *${inst.hubclass}Exported\n`
+    }
+
+    go += `}\n
+var namedExports *NamedExportedHubs = nil
+
+func NamedExports() *NamedExportedHubs {
+	for namedExports == nil {
+		println("Waiting for NamedExports")
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	return namedExports
+}
+`
+
 
     // Make the Go store file
     fs.writeFileSync(GoStoreFileName, go);

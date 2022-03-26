@@ -56,7 +56,7 @@ async function BuildPackages() {
         let dir = publishDir + "/" + appname + "-" + targetos + "/";
         fs.mkdirSync(dir + "public", { recursive: true });
         CopyFolder("public", dir);
-        let cmd = `env ${envvars} gomobile bind ${buildargs} -o ${dir}${mobileArchivename}${ext} ./GoApp`;
+        let cmd = `env ${envvars} gomobile bind ${buildargs} -o ${dir}${mobileArchivename}${ext} github.com/spindlygo/SpindlyExports ./spindlyapp ./GoApp`;
         await Exec(cmd);
 
         if (Verbose) console.log("> " + cmd);

@@ -19,6 +19,7 @@ async function BuildPackages() {
     let SpindlyConfigs = JSON.parse(fs.readFileSync('SpindlyConfigs.json', 'utf8'));
 
     let appname = "SpindlyApp";
+    let mobileArchivename = "SpindlyApp";
 
     if (SpindlyConfigs.hasOwnProperty("appname") && SpindlyConfigs.appname) {
         appname = SpindlyConfigs.appname;
@@ -55,7 +56,7 @@ async function BuildPackages() {
         let dir = publishDir + "/" + appname + "-" + targetos + "/";
         fs.mkdirSync(dir + "public", { recursive: true });
         CopyFolder("public", dir);
-        let cmd = `env ${envvars} gomobile bind ${buildargs} -o ${dir}${appname}${ext} ./GoApp`;
+        let cmd = `env ${envvars} gomobile bind ${buildargs} -o ${dir}${mobileArchivename}${ext} ./GoApp`;
         await Exec(cmd);
 
         if (Verbose) console.log("> " + cmd);
@@ -239,7 +240,7 @@ async function BuildPackages() {
     }
 
 
-    if (alldrivers.indexOf("flutter") > -1) {
+    if (alldrivers.indexOf("android") > -1) {
 
         fs.writeFileSync("spindlyapp/driver.go", Driver_In_Browser);
 

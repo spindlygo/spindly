@@ -19,7 +19,6 @@ async function BuildPackages() {
     let SpindlyConfigs = JSON.parse(fs.readFileSync('SpindlyConfigs.json', 'utf8'));
 
     let appname = "SpindlyApp";
-    let mobileArchivename = "SpindlyApp";
 
     if (SpindlyConfigs.hasOwnProperty("appname") && SpindlyConfigs.appname) {
         appname = SpindlyConfigs.appname;
@@ -52,15 +51,21 @@ async function BuildPackages() {
 
     }
 
-    let PublishMobileBind = async (targetos, ext, buildargs = "", envvars = "") => {
-        let dir = publishDir + "/" + appname + "-" + targetos + "/";
-        fs.mkdirSync(dir + "public", { recursive: true });
-        CopyFolder("public", dir);
-        let cmd = `env ${envvars} gomobile bind ${buildargs} -o ${dir}${mobileArchivename}${ext} github.com/spindlygo/SpindlyExports ./spindlyapp ./GoApp`;
+    let PublishMobileBind = async (targetos, outputDir, outputFilename, webappDir, buildargs = "", envvars = "") => {
+
+        fs.rmSync(publishDir, { force: true, recursive: true });
+
+        fs.mkdirSync(webappDir, { recursive: true });
+        fs.mkdirSync(outputDir, { recursive: true });
+
+        CopyFolder("public", webappDir);
+
+        let cmd = `env ${envvars} gomobile bind ${buildargs} -target=${targetos} -o ${outputDir + outputFilename} github.com/spindlygo/SpindlyExports ./spindlyapp ./GoApp`;
         await Exec(cmd);
 
         if (Verbose) console.log("> " + cmd);
-        if (Verbose) console.log("Built " + dir + "\n");
+        if (Verbose) console.log("Built archive for " + targetos + " -> " + outputDir + "\n");
+        if (Verbose) console.log("Built webapp -> " + webappDir + "\n");
 
     }
 
@@ -70,6 +75,10 @@ async function BuildPackages() {
 
     if (process.env.SPINDLYBUILD === "ADAPTIVE") {
         alldrivers = ["adaptive"];
+    }
+
+    if (process.env.SPINDLYBUILD === "MOBILE") {
+        alldrivers = ["mobile"];
     }
 
 
@@ -240,7 +249,7 @@ async function BuildPackages() {
     }
 
 
-    if (alldrivers.indexOf("android") > -1) {
+    if (alldrivers.indexOf("mobile") > -1) {
 
         fs.writeFileSync("spindlyapp/driver.go", Driver_In_Browser);
 
@@ -253,7 +262,7 @@ async function BuildPackages() {
 
             if (targetos.indexOf("android") > -1) {
 
-                await PublishMobileBind("android", ".aar");
+                await PublishMobileBind("android", "AndroidApp/app/libs/", "SpindlyApp.aar", "AndroidApp/app/src/main/assets/WebApp/");
             }
         }
 

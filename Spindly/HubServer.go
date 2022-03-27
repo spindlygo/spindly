@@ -92,6 +92,9 @@ func (HSvr *HubServer) ServeHub(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	go func() {
+
+		failedReads := 0
+
 		for {
 			// read in a message
 			messageType, msg, err := ws.ReadMessage()
@@ -102,12 +105,25 @@ func (HSvr *HubServer) ServeHub(w http.ResponseWriter, r *http.Request) {
 					conn.onClose()
 					HSvr.ExitIfUnused()
 					return
+
 				} else {
 					logerrmsg("WSReceive : Message read error on : "+hubclass+"/"+instance+" : ", err)
+					failedReads++
+
+					if failedReads > 10 {
+						logerrmsg("WSReceive : Too many failed reads on : "+hubclass+"/"+instance+" : ", err)
+						conn.onClose()
+						HSvr.ExitIfUnused()
+						return
+					}
+
+					time.Sleep(time.Millisecond * 400)
 					continue
 				}
 
 			}
+
+			failedReads = 0
 
 			if messageType == websocket.TextMessage {
 

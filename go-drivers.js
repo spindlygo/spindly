@@ -98,7 +98,7 @@ func Serve() bool {
 
 	if Spindly.TryAndOpenChromiumWindow(HostURL, false) {
 		Spindly.BlockWhileHostRunning()
-		return
+		return true
 	}
 
 	println("Cannot find a chromium based browser, opening with webview instead")

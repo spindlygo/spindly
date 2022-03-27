@@ -62,8 +62,7 @@ func Serve(router *mux.Router, port string) (url string, AssignedPort string) {
 	tries := 32
 	for err != nil {
 
-		if tries < 16 {
-			// panic(err)
+		if tries < 28 {
 
 			// HTTP request to AlivePath will succeed if another server is running
 			resp, respErr := http.Get("http://localhost:" + port + AlivePath)
@@ -171,6 +170,19 @@ func ShutdownServer() {
 		log("Application shutdown cancelled.")
 	}
 
+}
+
+func CheckIfAnotherSpindlyAppIsRunning(port string) bool {
+	// HTTP request to AlivePath will succeed if another server is running
+	resp, respErr := http.Get("http://localhost:" + port + AlivePath)
+	if respErr == nil {
+		if resp.StatusCode == http.StatusOK {
+			println("Another spindly app is already running on port " + port)
+			return true
+
+		}
+	}
+	return false
 }
 
 func log(msg string) {

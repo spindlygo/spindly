@@ -17,8 +17,8 @@ func Configure() {
 	Spindly.HandleStatic(router, "public", "index.html")
 }
 
-func Serve() bool {
-	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort)
+func Serve(onServerStart func()) bool {
+	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort, onServerStart)
 
 	if HostURL == "" {
 		return false
@@ -50,8 +50,8 @@ func Configure() {
 	Spindly.HandleStatic(router, "public", "index.html")
 }
 
-func Serve() bool {
-	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort)
+func Serve(onServerStart func()) bool {
+	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort, onServerStart)
 
 	if HostURL == "" {
 		return false
@@ -89,8 +89,8 @@ func Configure() {
 
 }
 
-func Serve() bool {
-	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort)
+func Serve(onServerStart func()) bool {
+	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort, onServerStart)
 
 	if HostURL == "" {
 		return false

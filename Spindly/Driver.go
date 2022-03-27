@@ -51,7 +51,9 @@ func HandleHub(router *mux.Router, manager *HubManager) {
 }
 
 // Starts serving router on the given port.
-func Serve(router *mux.Router, port string) (url string, AssignedPort string) {
+func Serve(router *mux.Router, port string, onServerStart func()) (url string, AssignedPort string) {
+
+	println(" --- Start Spindly Server --- ")
 
 	if len(port) == 0 {
 		port = "0"
@@ -135,6 +137,10 @@ func Serve(router *mux.Router, port string) (url string, AssignedPort string) {
 		go logerr(srv.Close())
 	}()
 
+	if onServerStart != nil {
+		go onServerStart()
+	}
+
 	return hostURL, port
 
 }
@@ -182,6 +188,28 @@ func CheckIfAnotherSpindlyAppIsRunning(port string) bool {
 
 		}
 	}
+
+	return false
+}
+
+// Returns true if another app is running and it's not shutting down after 8 seconds
+func InitializeForMobile(serverPort string, currentWorkingDir string) bool {
+	doubleRunningCheckCount := 16
+	for CheckIfAnotherSpindlyAppIsRunning(serverPort) {
+		time.Sleep(500 * time.Millisecond)
+
+		doubleRunningCheckCount--
+		if doubleRunningCheckCount < 1 {
+			println("Another Spindly app is already running. Exiting...")
+			return true
+		}
+	}
+
+	os.Chdir(currentWorkingDir)
+
+	oswd, _ := os.Getwd()
+	println("Spindly Working Directory: " + oswd)
+
 	return false
 }
 

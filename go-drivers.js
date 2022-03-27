@@ -17,10 +17,17 @@ func Configure() {
 	Spindly.HandleStatic(router, "public", "index.html")
 }
 
-func Serve() {
+func Serve() bool {
 	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort)
+
+	if HostURL == "" {
+		return false
+	}
+
 	Spindly.TryAndOpenChromiumWindow(HostURL, true)
 	Spindly.BlockWhileHostRunning()
+
+	return true
 }
 `
 
@@ -43,9 +50,16 @@ func Configure() {
 	Spindly.HandleStatic(router, "public", "index.html")
 }
 
-func Serve() {
+func Serve() bool {
 	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort)
+
+	if HostURL == "" {
+		return false
+	}
+
 	Spindly.BlockWhileHostRunning()
+
+	return true
 }
 `
 
@@ -75,9 +89,12 @@ func Configure() {
 
 }
 
-func Serve() {
-
+func Serve() bool {
 	HostURL, DefaultPort = Spindly.Serve(router, DefaultPort)
+
+	if HostURL == "" {
+		return false
+	}
 
 	if Spindly.TryAndOpenChromiumWindow(HostURL, false) {
 		Spindly.BlockWhileHostRunning()
@@ -94,5 +111,7 @@ func Serve() {
 	wv.SetSize(1024, 640, webview.HintMin)
 	wv.Navigate(HostURL)
 	wv.Run()
+
+	return true
 }
 `

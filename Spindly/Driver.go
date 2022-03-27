@@ -15,8 +15,20 @@ import (
 // TODO : False
 var Verbose bool = true
 
+const AlivePath = "/spindly/alive"
+
 func NewRouter() *mux.Router {
 	router := mux.NewRouter()
+
+	router.HandleFunc(AlivePath, func(w http.ResponseWriter, r *http.Request) {
+		if IsShuttingDown || len(server_shutdown_channel) != 0 {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	})
+
 	return router
 }
 
@@ -46,8 +58,40 @@ func Serve(router *mux.Router, port string) (url string, AssignedPort string) {
 	}
 
 	listener, err := net.Listen("tcp", ":"+port)
-	if err != nil {
-		panic(err)
+
+	tries := 32
+	for err != nil {
+
+		if tries < 16 {
+			// panic(err)
+
+			// HTTP request to AlivePath will succeed if another server is running
+			resp, respErr := http.Get("http://localhost:" + port + AlivePath)
+			if respErr == nil {
+				if resp.StatusCode == http.StatusOK {
+					println("Another spindly app is already running on port " + port)
+					return "", ""
+
+				}
+			}
+
+			if resp != nil && resp.StatusCode == http.StatusServiceUnavailable {
+				println("Another spindly app is already running on port " + port + ", but it's shutting down")
+
+				time.Sleep(time.Millisecond * 500)
+			}
+		}
+
+		if tries <= 0 {
+			panic(err)
+		}
+
+		println(`Failed to start server on port : ` + port + `. Trying again in 500ms.`)
+		time.Sleep(time.Millisecond * 500)
+
+		tries--
+
+		listener, err = net.Listen("tcp", ":"+port)
 	}
 
 	port = strconv.Itoa(listener.Addr().(*net.TCPAddr).Port)
@@ -60,7 +104,7 @@ func Serve(router *mux.Router, port string) (url string, AssignedPort string) {
 	go func() {
 		final := srv.Serve(listener)
 
-		if final != nil && len(server_shutdown_channel) == 0 {
+		if final != nil && !IsShuttingDown {
 			panic(final)
 		}
 	}()
@@ -69,13 +113,26 @@ func Serve(router *mux.Router, port string) (url string, AssignedPort string) {
 
 	log("Host on " + hostURL)
 
+	// Clear older shutdown channels
+	// On android, activity can be destroyed and recreated, so we need to clear the shutdown channel
+	IsShuttingDown = false
+
+	if len(server_shutdown_channel) > 0 {
+		for range server_shutdown_channel {
+		}
+
+		close(server_shutdown_channel)
+	}
+
+	server_shutdown_channel = make(chan bool, 132)
+
 	go func() {
 		<-server_shutdown_channel
 
-		log("Shutting down host...")
+		log("Shutting down web server...")
 
 		go logerr(srv.Shutdown(context.Background()))
-		time.Sleep(time.Second * 4)
+		time.Sleep(time.Second * 1)
 		go logerr(srv.Close())
 	}()
 
@@ -88,22 +145,31 @@ func BlockWhileHostRunning() {
 }
 
 var server_shutdown_channel = make(chan bool, 132)
+var IsShuttingDown bool = false
 
 func ShutdownServer() {
+	IsShuttingDown = true
 	go func() {
+		log("Shutting down hubs...")
+
 		for i := 0; len(server_shutdown_channel) < 128; i++ {
 			for j := 0; j < 64; j++ {
 				server_shutdown_channel <- true
 			}
-			time.Sleep(time.Millisecond * 400)
+			// time.Sleep(time.Millisecond * 400)
 		}
 
 	}()
 
 	time.Sleep(time.Second * 10)
 
-	log("Closing application...")
-	os.Exit(0)
+	if IsShuttingDown {
+		log("Shutdown application.")
+		os.Exit(0)
+
+	} else {
+		log("Application shutdown cancelled.")
+	}
 
 }
 

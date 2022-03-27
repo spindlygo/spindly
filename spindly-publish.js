@@ -24,7 +24,11 @@ async function BuildPackages() {
         appname = SpindlyConfigs.appname;
     }
 
+    let BuildGoHost = true
 
+    if (process.env.PARTIALBUILD === "WEBAPP") {
+        BuildGoHost = false
+    }
 
 
     let alldrivers = [];
@@ -43,29 +47,39 @@ async function BuildPackages() {
         let dir = publishDir + "/" + appname + "-" + targetos + "-" + arch + "-" + driver + "/";
         fs.mkdirSync(dir + "public", { recursive: true });
         CopyFolder("public", dir);
-        let cmd = `env GOOS=${targetos} GOARCH=${arch} ${envvars} go build ${buildargs} -o ${dir}${appname}${ext}`;
-        await Exec(cmd);
 
-        if (Verbose) console.log("> " + cmd);
+        if (BuildGoHost) {
+
+            let cmd = `env GOOS=${targetos} GOARCH=${arch} ${envvars} go build ${buildargs} -o ${dir}${appname}${ext}`;
+            await Exec(cmd);
+
+            if (Verbose) console.log("> " + cmd);
+        }
+
         if (Verbose) console.log("Built " + dir + "\n");
 
     }
 
     let PublishMobileBind = async (targetos, outputDir, outputFilename, webappDir, buildargs = "", envvars = "") => {
 
-        fs.rmSync(publishDir, { force: true, recursive: true });
-
+        fs.rmSync(webappDir, { force: true, recursive: true });
         fs.mkdirSync(webappDir, { recursive: true });
-        fs.mkdirSync(outputDir, { recursive: true });
 
         CopyFolder("public", webappDir);
 
-        let cmd = `env ${envvars} gomobile bind ${buildargs} -target=${targetos} -o ${outputDir + outputFilename} github.com/spindlygo/SpindlyExports ./spindlyapp ./GoApp`;
-        await Exec(cmd);
-
-        if (Verbose) console.log("> " + cmd);
-        if (Verbose) console.log("Built archive for " + targetos + " -> " + outputDir + "\n");
         if (Verbose) console.log("Built webapp -> " + webappDir + "\n");
+
+        if (BuildGoHost) {
+
+            fs.rmSync(outputDir, { force: true, recursive: true });
+            fs.mkdirSync(outputDir, { recursive: true });
+
+            let cmd = `env ${envvars} gomobile bind ${buildargs} -target=${targetos} -o ${outputDir + outputFilename} github.com/spindlygo/SpindlyExports ./spindlyapp ./GoApp`;
+            await Exec(cmd);
+
+            if (Verbose) console.log("> " + cmd);
+            if (Verbose) console.log("Built archive for " + targetos + " -> " + outputDir + "\n");
+        }
 
     }
 
@@ -84,8 +98,10 @@ async function BuildPackages() {
 
     if (alldrivers.indexOf("chromeapp") > -1) {
 
-        fs.writeFileSync("spindlyapp/driver.go", Driver_ChromeApp);
-        await Exec(`go mod tidy`);
+        if (BuildGoHost) {
+            fs.writeFileSync("spindlyapp/driver.go", Driver_ChromeApp);
+            await Exec(`go mod tidy`);
+        }
 
         if (SpindlyConfigs.hasOwnProperty("os") && SpindlyConfigs.os) {
 
@@ -123,8 +139,10 @@ async function BuildPackages() {
 
     if (alldrivers.indexOf("browser") > -1) {
 
-        fs.writeFileSync("spindlyapp/driver.go", Driver_In_Browser);
-        await Exec(`go mod tidy`);
+        if (BuildGoHost) {
+            fs.writeFileSync("spindlyapp/driver.go", Driver_In_Browser);
+            await Exec(`go mod tidy`);
+        }
 
         if (SpindlyConfigs.hasOwnProperty("os") && SpindlyConfigs.os) {
 
@@ -163,10 +181,10 @@ async function BuildPackages() {
 
     if (alldrivers.indexOf("adaptive") > -1) {
 
-        fs.writeFileSync("spindlyapp/driver.go", Driver_Adaptive);
-
-
-        await Exec(`go mod tidy`);
+        if (BuildGoHost) {
+            fs.writeFileSync("spindlyapp/driver.go", Driver_Adaptive);
+            await Exec(`go mod tidy`);
+        }
 
         if (SpindlyConfigs.hasOwnProperty("os") && SpindlyConfigs.os) {
 
@@ -208,10 +226,10 @@ async function BuildPackages() {
 
     if (alldrivers.indexOf("adaptive-cross") > -1) {
 
-        fs.writeFileSync("spindlyapp/driver.go", Driver_Adaptive);
-
-
-        await Exec(`go mod tidy`);
+        if (BuildGoHost) {
+            fs.writeFileSync("spindlyapp/driver.go", Driver_Adaptive);
+            await Exec(`go mod tidy`);
+        }
 
         if (SpindlyConfigs.hasOwnProperty("os") && SpindlyConfigs.os) {
 
@@ -251,10 +269,13 @@ async function BuildPackages() {
 
     if (alldrivers.indexOf("mobile") > -1) {
 
-        fs.writeFileSync("spindlyapp/driver.go", Driver_In_Browser);
+        if (BuildGoHost) {
 
-        await Exec(`go mod tidy`);
-        await Exec(`go get golang.org/x/mobile/bind`);
+            fs.writeFileSync("spindlyapp/driver.go", Driver_In_Browser);
+
+            await Exec(`go mod tidy`);
+            await Exec(`go get golang.org/x/mobile/bind`);
+        }
 
         if (SpindlyConfigs.hasOwnProperty("os") && SpindlyConfigs.os) {
 

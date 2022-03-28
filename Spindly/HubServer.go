@@ -150,15 +150,31 @@ func (HSvr *HubServer) ServeHub(w http.ResponseWriter, r *http.Request) {
 
 }
 
+var unusedCountdownRunning = false
+
 func (HSvr *HubServer) ExitIfUnused() {
 
-	for i := 0; i < 10 && HSvr.Manager.IsUnused(); i++ {
-		time.Sleep(time.Millisecond * 500)
+	if unusedCountdownRunning {
+		return
 	}
 
-	if HSvr.Manager.IsUnused() {
-		ShutdownServer()
+	unusedCountdownRunning = true
+
+	countDown := SecondsToKeepAliveIfUnused
+	for HSvr.Manager.IsUnused() {
+		time.Sleep(time.Second * 2)
+		countDown -= 2
+
+		logobj("Unused : ", countDown)
+
+		if countDown < 1 {
+			unusedCountdownRunning = false
+			ShutdownServer()
+			return
+		}
 	}
+
+	unusedCountdownRunning = false
 }
 
 type WSConnector struct {

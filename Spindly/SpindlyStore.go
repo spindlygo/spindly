@@ -134,16 +134,31 @@ func (v *SpindlyStore) ToExported() *SpindlyExports.ExportedStore {
 		Name: v.Name,
 		Get: func() string {
 			val := v.Get()
-			return returnAsJson(val)
+			valjson := returnAsJson(val)
+
+			if Verbose {
+				log("Export Get : " + v.Instance.HubClass + "/" + v.Instance.InstanceID + "." + v.Name + " : " + valjson)
+			}
+			return valjson
 		},
 		Set: func(val string) {
 			var value = v.Template()
 			json.Unmarshal([]byte(val), &value)
+
+			if Verbose {
+				log("Export Set : " + v.Instance.HubClass + "/" + v.Instance.InstanceID + "." + v.Name + " : " + val)
+			}
+
 			v.Set(value)
 		},
 		Next: func() string {
 			val := v.Next()
-			return returnAsJson(val)
+			valjson := returnAsJson(val)
+
+			if Verbose {
+				log("Export Next : " + v.Instance.HubClass + "/" + v.Instance.InstanceID + "." + v.Name + " : " + valjson)
+			}
+			return valjson
 		},
 	}
 

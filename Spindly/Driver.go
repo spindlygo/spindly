@@ -14,6 +14,7 @@ import (
 
 // TODO : False
 var Verbose bool = true
+var SecondsToKeepAliveIfUnused int = 5
 
 const AlivePath = "/spindly/alive"
 
@@ -206,6 +207,7 @@ func InitializeForMobile(serverPort string, currentWorkingDir string) bool {
 	}
 
 	os.Chdir(currentWorkingDir)
+	SecondsToKeepAliveIfUnused = 60 * 60 // 1 hour
 
 	oswd, _ := os.Getwd()
 	println("Spindly Working Directory: " + oswd)

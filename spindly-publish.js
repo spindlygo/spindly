@@ -43,15 +43,15 @@ async function BuildPackages() {
         archs = SpindlyConfigs.arch;
     }
 
-    let PublishApp = async (targetos, ext, arch, driver, buildargs = "", envvars = "") => {
+    let PublishApp = async (targetos, ext, arch, driver, buildargs = "", envvars = {}) => {
         let dir = publishDir + "/" + appname + "-" + targetos + "-" + arch + "-" + driver + "/";
         fs.mkdirSync(dir + "public", { recursive: true });
         CopyFolder("public", dir);
 
         if (BuildGoHost) {
 
-            let cmd = `env GOOS=${targetos} GOARCH=${arch} ${envvars} go build ${buildargs} -o ${dir}${appname}${ext}`;
-            await Exec(cmd);
+            let cmd = `go build ${buildargs} -o ${dir}${appname}${ext}`;
+            await Exec(cmd, { ...envvars, GOOS: targetos, GOARCH: arch });
 
             if (Verbose) console.log("> " + cmd);
         }
@@ -60,7 +60,7 @@ async function BuildPackages() {
 
     }
 
-    let PublishMobileBind = async (targetos, outputDir, outputFilename, webappDir, buildargs = "", envvars = "") => {
+    let PublishMobileBind = async (targetos, outputDir, outputFilename, webappDir, buildargs = "", envvars = {}) => {
 
         fs.rmSync(webappDir, { force: true, recursive: true });
         fs.mkdirSync(webappDir, { recursive: true });
@@ -74,8 +74,8 @@ async function BuildPackages() {
             fs.rmSync(outputDir, { force: true, recursive: true });
             fs.mkdirSync(outputDir, { recursive: true });
 
-            let cmd = `env ${envvars} gomobile bind ${buildargs} -target=${targetos} -o ${outputDir + outputFilename} github.com/spindlygo/SpindlyExports ./spindlyapp ./GoApp`;
-            await Exec(cmd);
+            let cmd = `gomobile bind ${buildargs} -target=${targetos} -o ${outputDir + outputFilename} github.com/spindlygo/SpindlyExports ./spindlyapp ./GoApp`;
+            await Exec(cmd, envvars);
 
             if (Verbose) console.log("> " + cmd);
             if (Verbose) console.log("Built archive for " + targetos + " -> " + outputDir + "\n");
@@ -341,11 +341,11 @@ function CopyFolder(source, target) {
     }
 }
 
-function Exec(file) {
+function Exec(file, envVars) {
     var exec = child_process.exec;
 
     return new Promise((resolve, reject) => {
-        exec(file, function execcallback(error, stdout, stderr) {
+        exec(file, { env: { ...process.env, ...envVars } }, function execcallback(error, stdout, stderr) {
             if (stdout) console.log(file + ': ' + stdout);
             if (stderr) console.log(file + ': Erro : ' + stderr);
             if (error) console.error(error);

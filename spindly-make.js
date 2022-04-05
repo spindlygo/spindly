@@ -72,8 +72,8 @@ var HubManager *Spindly.HubManager = Spindly.NewHubManager()
 
 const hub_name = '${hubclass}';
 
-export function ${hubclass}(hub_instance_id) {
-    let SpindlyStore = ConnectHub(hub_name, hub_instance_id);
+export function ${hubclass}(hub_instance_id, preserve = false) {
+    let SpindlyStore = ConnectHub(hub_name, hub_instance_id, preserve);
     let SpindlyEventStore = (storename) => {
         let es = SpindlyStore(storename);
         return () => { es.set(Math.random()); };
@@ -127,7 +127,7 @@ var ${hubclass}_OnInstanciate func(*${hubclass})
 
             if ((hub.hasOwnProperty("instances")) && (hub.instances.length > 0)) {
                 for (const instname of hub.instances) {
-                    js += `export let ${instname} = ${hubclass}("${instname}");\n`;
+                    js += `export let ${instname} = ${hubclass}("${instname}", true);\n`;
                     go += `var ${instname} *${hubclass}\n`
                 }
             }
